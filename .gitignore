@@ -1,0 +1,16 @@
+# MacOS
+*/.DS_Store
+
+# IDEs
+/.vscode
+
+# React
+*/node_modules
+/build
+/dist
+*/.env
+
+# Python
+*/__pycache__
+*/.pytest_cache
+*/.venv
