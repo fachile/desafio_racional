@@ -1,16 +1,24 @@
 # MacOS
-*/.DS_Store
+**/.DS_Store
 
 # IDEs
 /.vscode
+/.idea
 
 # React
 */node_modules
 /build
 /dist
-*/.env
 
 # Python
-*/__pycache__
-*/.pytest_cache
-*/.venv
+**/__pycache__
+**/.pytest_cache
+**/.venv
+*.pyc
+*.pyo
+
+# Environment
+**/.env
+
+# Docker
+postgres_data/
