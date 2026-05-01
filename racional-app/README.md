@@ -1,16 +1,70 @@
-# React + Vite
+# Racional App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Pequeña aplicación React + Vite para visualizar métricas de inversión (charts, indicadores y evolución intradía).
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 18+ (o LTS compatible)
+- npm o Yarn
 
-## React Compiler
+## Instalación
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Clona el repositorio.
+2. Desde la raíz del proyecto instala dependencias:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+# o
+yarn install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Configuración
+
+Crea un archivo `.env` en la raíz con las siguientes variables:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+
+
+## Ejecutar en desarrollo
+
+Arranca el servidor de desarrollo con HMR:
+
+```bash
+npm run dev
+# o
+yarn dev
+```
+
+La app estará disponible en `http://localhost:5173` (o el puerto que indique Vite).
+
+## Construir y desplegar
+
+Generar build de producción:
+
+```bash
+npm run build
+# o
+yarn build
+```
+
+
+## Estructura relevante
+
+- `src/` — código fuente React
+- `src/components/` — componentes (charts, tarjetas, indicadores)
+- `src/hooks/` — hooks personalizados para evolución e intraday
+- `src/firebase.js` — inicialización de Firebase
+
+## Uso de IA
+
+Este proyecto fue desarrollado en colaboración con Claude y GitHub Copilot. El flujo de trabajo fue:
+
+1. **Diseño conversacional:** antes de escribir código se discutió decisiones de arquitectura y diseño con Claude como contraparte técnica.
+2. **Generación de código:** Se creo el proyecto con Vite, se generaron componentes y hooks iniciales utilizando Claude. Luego, se utilizó GitHub Copilot para iterar y mejorar el código.
+4. **Revisión humana:** todas las decisiones de diseño y arquitectura fueron validadas y ajustadas por el desarrollador durante la conversación.
