@@ -43,6 +43,7 @@ export function useIntradayEvolution() {
       const sorted = [...array].sort((a, b) => a.date.seconds - b.date.seconds);
       const last = sorted[sorted.length - 1];
       if (!last) { setLoading(false); return; }
+      const previous = sorted.length > 1 ? sorted[sorted.length - 2] : null;
 
       const lastDate = new Date(last.date.seconds * 1000);
 
@@ -57,6 +58,15 @@ export function useIntradayEvolution() {
       setLatestValue(latestObj);
 
       const signature = getSnapshotSignature(last);
+      const previousTick = previous
+        ? {
+            time: "Apertura",
+            timestamp: new Date(previous.date.seconds * 1000).getTime(),
+            portfolioValue: previous.portfolioValue,
+            portfolioIndex: previous.portfolioIndex,
+            dailyReturn: previous.dailyReturn,
+          }
+        : null;
       const currentTick = {
         time: formatTime(new Date()),
         timestamp: Date.now(),
@@ -68,7 +78,7 @@ export function useIntradayEvolution() {
       if (!hasInitializedRef.current) {
         hasInitializedRef.current = true;
         lastSignatureRef.current = signature;
-        setTicks([currentTick]);
+        setTicks(previousTick ? [previousTick, currentTick] : [currentTick]);
       } else if (signature !== lastSignatureRef.current) {
         lastSignatureRef.current = signature;
         setTicks((prev) => [...prev, currentTick]);
