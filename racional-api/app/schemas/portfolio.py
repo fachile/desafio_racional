@@ -1,10 +1,8 @@
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from pydantic import BaseModel, Field, model_validator
-from app.models.models import Currency, OrderType, OrderStatus
+from app.models.models import OrderType, OrderStatus
 
-
-# --- Allocation ---
 
 class AllocationItem(BaseModel):
     ticker:     str     = Field(..., min_length=1, max_length=20)
@@ -20,12 +18,9 @@ class AllocationResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Portfolio ---
-
 class PortfolioCreate(BaseModel):
     name:        str = Field(..., min_length=1, max_length=255)
     description: str | None = Field(None, max_length=500)
-    currency:    Currency = Currency.USD
     allocations: list[AllocationItem] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -50,8 +45,7 @@ class PortfolioResponse(BaseModel):
     user_id:      int
     name:         str
     description:  str | None
-    cash_balance: Decimal
-    currency:     Currency
+    cash_balance: int
     allocations:  list[AllocationResponse] = []
     created_at:   datetime
     updated_at:   datetime
@@ -59,38 +53,31 @@ class PortfolioResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Fund / Withdraw ---
-
 class FundRequest(BaseModel):
-    amount: Decimal = Field(..., gt=0, decimal_places=4)
+    amount: int = Field(..., gt=0)
 
 
 class WithdrawRequest(BaseModel):
-    amount: Decimal = Field(..., gt=0, decimal_places=4)
+    amount: int = Field(..., gt=0)
 
-
-# --- Total ---
 
 class HoldingValuation(BaseModel):
     ticker:        str
     quantity:      Decimal
-    avg_buy_price: Decimal
-    current_price: Decimal
-    market_value:  Decimal
-    gain_loss:     Decimal
+    avg_buy_price: int
+    current_price: int
+    market_value:  int
+    gain_loss:     int
     target_pct:    Decimal | None = None
 
 
 class PortfolioTotal(BaseModel):
     portfolio_id:   int
-    currency:       Currency
-    cash_balance:   Decimal
-    holdings_value: Decimal
-    total_value:    Decimal
+    cash_balance:   int
+    holdings_value: int
+    total_value:    int
     holdings:       list[HoldingValuation]
 
-
-# --- Orders ---
 
 class OrderResponse(BaseModel):
     id:                 int
@@ -98,22 +85,16 @@ class OrderResponse(BaseModel):
     ticker:             str
     type:               OrderType
     quantity:           Decimal
-    price_at_execution: Decimal
-    currency:           Currency
-    date:               date
+    price_at_execution: int
     status:             OrderStatus
     created_at:         datetime
 
     model_config = {"from_attributes": True}
 
 
-# --- Movements ---
-
 class MovementItem(BaseModel):
     id:          int
     event_type:  str
     description: str
-    amount:      Decimal
-    currency:    Currency
-    date:        date
+    amount:      int
     created_at:  datetime

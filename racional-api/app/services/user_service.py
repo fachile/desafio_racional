@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from app.models.models import User, Wallet, Currency
+from app.models.models import User, Wallet
 from app.schemas.user import UserCreate, UserUpdate
 
 
@@ -14,7 +14,7 @@ def create_user(db: Session, data: UserCreate) -> User:
     db.flush()  # get user.id before creating wallet
 
     # Auto-create wallet (1:1 with user)
-    wallet = Wallet(user_id=user.id, currency=Currency.USD)
+    wallet = Wallet(user_id=user.id)
     db.add(wallet)
     db.commit()
     db.refresh(user)
