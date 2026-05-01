@@ -36,11 +36,7 @@ class Currency(str, enum.Enum):
     EUR = "EUR"
 
 
-# ---------------------------------------------------------------------------
-# SQLAlchemy Enum column types — create_type=False because the PG types
-# are created by Alembic migrations, not by SQLAlchemy's metadata.
-# ---------------------------------------------------------------------------
-
+# SQLAlchemy enum column types — create_type=False: managed by Alembic
 movement_type_enum = Enum(MovementType, name="movementtype", create_type=False)
 order_type_enum    = Enum(OrderType,    name="ordertype",    create_type=False)
 order_status_enum  = Enum(OrderStatus,  name="orderstatus",  create_type=False)
@@ -95,7 +91,24 @@ class Portfolio(Base):
     user:                Mapped["User"]                  = relationship("User", back_populates="portfolios")
     holdings:            Mapped[list["Holding"]]         = relationship("Holding", back_populates="portfolio")
     orders:              Mapped[list["Order"]]           = relationship("Order", back_populates="portfolio")
+    allocations:         Mapped[list["PortfolioAllocation"]] = relationship("PortfolioAllocation", back_populates="portfolio", cascade="all, delete-orphan")
     portfolio_transfers: Mapped[list["PortfolioTransfer"]] = relationship("PortfolioTransfer", back_populates="portfolio")
+
+
+class PortfolioAllocation(Base):
+    __tablename__ = "portfolio_allocations"
+    __table_args__ = (
+        UniqueConstraint("portfolio_id", "ticker", name="uq_allocation_portfolio_ticker"),
+    )
+
+    id:           Mapped[int]      = mapped_column(Integer, primary_key=True, autoincrement=True)
+    portfolio_id: Mapped[int]      = mapped_column(Integer, ForeignKey("portfolios.id"), nullable=False)
+    ticker:       Mapped[str]      = mapped_column(String(20), nullable=False)
+    target_pct:   Mapped[Decimal]  = mapped_column(Numeric(6, 4), nullable=False)  # e.g. 0.4000 = 40%
+    created_at:   Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at:   Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    portfolio: Mapped["Portfolio"] = relationship("Portfolio", back_populates="allocations")
 
 
 class CashMovement(Base):
