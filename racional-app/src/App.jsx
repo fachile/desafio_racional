@@ -91,9 +91,10 @@ export default function App() {
 
         <div className="cards-grid">
           <MetricCard label="Valor actual" value={formatCLP(currentValue)} trend={0} delay={0} />
-          <MetricCard label="Rentabilidad total" value={formatPct(totalReturn)} sub={formatPct(totalReturn)} trend={totalReturn} delay={80} />
-          <MetricCard label="Ganancia / Pérdida" value={formatCLP(gain)} sub={formatCLP(gain)} trend={gain} delay={160} />
-          <MetricCard label="Retorno del día" value={formatPct(dailyReturn)} sub={formatPct(dailyReturn)} trend={dailyReturn} delay={240} />
+          <MetricCard label="Aporte total" value={formatCLP(contributions)} trend={0} delay={80} />
+          <MetricCard label="Rentabilidad total" value={formatPct(totalReturn)} sub={formatPct(totalReturn)} trend={totalReturn} delay={160} />
+          <MetricCard label="Ganancia / Pérdida" value={formatCLP(gain)} sub={formatCLP(gain)} trend={gain} delay={240} />
+          <MetricCard label="Retorno del día" value={formatPct(dailyReturn)} sub={formatPct(dailyReturn)} trend={dailyReturn} delay={320} />
         </div>
 
         {/* Intraday */}
@@ -101,7 +102,7 @@ export default function App() {
           <div className="chart-header">
             <div>
               <div className="chart-title-row">
-                <h2 className="chart-title">Movimiento de hoy</h2>
+                <h2 className="chart-title">Evolución de hoy</h2>
                 <span className="live-badge">
                   <span className="live-dot-sm" />
                   TIEMPO REAL
@@ -123,7 +124,6 @@ export default function App() {
           <div className="chart-header">
             <div>
               <h2 className="chart-title">Evolución histórica</h2>
-              <p className="chart-subtitle">Aporte inicial: <strong>{formatCLP(contributions)}</strong></p>
             </div>
             <div className={`trend-badge ${isGainPositive ? "positive" : "negative"}`}>
               {isGainPositive ? "▲" : "▼"} {formatPct(totalReturn)}
@@ -133,7 +133,7 @@ export default function App() {
         </div>
 
         <p className="footer-note">
-          Datos en tiempo real · {data.length} registros históricos · Fuente: Racional
+          Datos en tiempo real · {data.length} registros históricos
         </p>
       </main>
     </div>

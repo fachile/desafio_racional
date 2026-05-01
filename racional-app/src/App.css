@@ -113,15 +113,17 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 100px;
-  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  padding: 6px 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(8px);
 }
 .live-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--positive);
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -130,13 +132,15 @@ body {
   50% { opacity: 0.5; transform: scale(0.8); }
 }
 .live-text {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  color: var(--positive);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  text-transform: none;
 }
 .live-time {
   font-size: 11px;
+  font-weight: 600;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
