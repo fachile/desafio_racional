@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useInvestmentEvolution } from "./hooks/useInvestmentEvolution";
 import { useIntradayEvolution } from "./hooks/useIntradayEvolution";
-import MetricCard from "./components/MetricCard";
 import EvolutionChart from "./components/EvolutionChart";
 import IntradayChart from "./components/IntradayChart";
 import LiveIndicator from "./components/LiveIndicator";
@@ -17,6 +16,10 @@ function formatCLP(value) {
 
 function formatPct(value) {
   return `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
+}
+
+function formatSignedCLP(value) {
+  return `${value >= 0 ? "+" : "-"}${formatCLP(Math.abs(value))}`;
 }
 
 export default function App() {
@@ -56,12 +59,13 @@ export default function App() {
   const gain = currentValue - contributions;
   const totalReturn = contributions > 0 ? gain / contributions : 0;
   const dailyReturn = latest?.dailyReturn ?? 0;
+  const endDate = latest?.date ?? data[data.length - 1].date;
 
   const dateRange =
     data.length > 0
       ? `${first.date.toLocaleDateString("es-CL", {
           day: "2-digit", month: "short", year: "numeric",
-        })} — ${(latest?.date ?? data[data.length - 1]?.date).toLocaleDateString("es-CL", {
+        })} — ${endDate.toLocaleDateString("es-CL", {
           day: "2-digit", month: "short", year: "numeric",
         })}`
       : "";
@@ -71,6 +75,7 @@ export default function App() {
     ticks.length >= 2
       ? ticks[ticks.length - 1].portfolioValue - ticks[0].portfolioValue
       : null;
+  const gainLabel = gain >= 0 ? "He ganado" : "He perdido";
 
   return (
     <div className="app">
@@ -89,12 +94,24 @@ export default function App() {
       <main className="main">
         <p className="date-range">{dateRange}</p>
 
-        <div className="cards-grid">
-          <MetricCard label="Valor actual" value={formatCLP(currentValue)} trend={0} delay={0} />
-          <MetricCard label="Aporte total" value={formatCLP(contributions)} trend={0} delay={80} />
-          <MetricCard label="Rentabilidad total" value={formatPct(totalReturn)} sub={formatPct(totalReturn)} trend={totalReturn} delay={160} />
-          <MetricCard label="Ganancia / Pérdida" value={formatCLP(gain)} sub={formatCLP(gain)} trend={gain} delay={240} />
-          <MetricCard label="Retorno del día" value={formatPct(dailyReturn)} sub={formatPct(dailyReturn)} trend={dailyReturn} delay={320} />
+        <div className="portfolio-summary">
+          <div className="portfolio-summary-main">
+            <span className="portfolio-summary-item-label">Saldo total</span>
+            <span className="portfolio-summary-item-value">{formatCLP(currentValue)}</span>
+          </div>
+
+          <div className="portfolio-summary-grid">
+            <div className="portfolio-summary-item">
+              <span className="portfolio-summary-item-label">He invertido</span>
+              <span className="portfolio-summary-item-value">{formatCLP(contributions)}</span>
+            </div>
+            <div className="portfolio-summary-item portfolio-summary-item-end">
+              <span className="portfolio-summary-item-label">{gainLabel}</span>
+              <span className={`portfolio-summary-item-value ${gain >= 0 ? "positive" : "negative"}`}>
+                {formatSignedCLP(gain)}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Intraday */}
@@ -109,6 +126,7 @@ export default function App() {
                 </span>
               </div>
               <p className="chart-subtitle">Actualizaciones minuto a minuto durante la sesión</p>
+              <p className="chart-subtitle">Retorno del día: <strong>{formatPct(dailyReturn)}</strong></p>
             </div>
             {intradayDelta !== null && (
               <div className={`trend-badge ${intradayDelta >= 0 ? "positive" : "negative"}`}>
@@ -124,6 +142,7 @@ export default function App() {
           <div className="chart-header">
             <div>
               <h2 className="chart-title">Evolución histórica</h2>
+              <p className="chart-subtitle">Rentabilidad total: <strong>{formatPct(totalReturn)}</strong></p>
             </div>
             <div className={`trend-badge ${isGainPositive ? "positive" : "negative"}`}>
               {isGainPositive ? "▲" : "▼"} {formatPct(totalReturn)}

@@ -108,6 +108,84 @@ body {
   font-weight: 400;
 }
 
+/* ── Portfolio Summary ── */
+.portfolio-summary {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+  padding: 30px 28px 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 246, 239, 0.98));
+  border: 1px solid rgba(237, 233, 227, 0.95);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow-md);
+}
+.portfolio-summary::before {
+  content: "";
+  position: absolute;
+  inset: -40% auto auto -10%;
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+}
+.portfolio-summary-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+.portfolio-summary-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.portfolio-summary-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 96px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(237, 233, 227, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+}
+.portfolio-summary-item-end {
+  align-items: flex-end;
+  text-align: right;
+}
+.portfolio-summary-item-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.portfolio-summary-item-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.intraday-return {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(237, 233, 227, 0.95);
+}
+
 /* ── Live Indicator ── */
 .live-indicator {
   display: flex;
@@ -332,13 +410,16 @@ body {
 @media (max-width: 768px) {
   .header { padding: 14px 16px; }
   .main { padding: 24px 16px 48px; }
-  .cards-grid { grid-template-columns: repeat(2, 1fr); }
-  .metric-value { font-size: 20px; }
+  .portfolio-summary { padding: 22px 18px 18px; }
+  .portfolio-summary-grid { grid-template-columns: 1fr; }
+  .portfolio-summary-item-end { align-items: flex-start; text-align: left; }
+  .portfolio-summary-value { font-size: 38px; }
+  .portfolio-summary-item-value { font-size: 22px; }
   .chart-card { padding: 20px 16px 16px; }
 }
 @media (max-width: 480px) {
-  .cards-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .live-time { display: none; }
+  .portfolio-summary-value { font-size: 34px; }
 }
 
 /* ── Intraday ── */
