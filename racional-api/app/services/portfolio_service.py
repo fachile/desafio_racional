@@ -1,4 +1,3 @@
-from uuid import UUID
 from decimal import Decimal
 from datetime import date
 from sqlalchemy.orm import Session
@@ -12,7 +11,7 @@ from app.schemas.portfolio import (
 from app.core.mock_prices import get_price
 
 
-def _get_portfolio(db: Session, portfolio_id: UUID) -> Portfolio:
+def _get_portfolio(db: Session, portfolio_id: int) -> Portfolio:
     portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id).first()
     if not portfolio:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found")
@@ -23,7 +22,7 @@ def _get_portfolio(db: Session, portfolio_id: UUID) -> Portfolio:
 # CRUD
 # ---------------------------------------------------------------------------
 
-def create_portfolio(db: Session, user_id: UUID, data: PortfolioCreate) -> Portfolio:
+def create_portfolio(db: Session, user_id: int, data: PortfolioCreate) -> Portfolio:
     portfolio = Portfolio(
         user_id=user_id,
         name=data.name,
@@ -36,7 +35,7 @@ def create_portfolio(db: Session, user_id: UUID, data: PortfolioCreate) -> Portf
     return portfolio
 
 
-def update_portfolio(db: Session, portfolio_id: UUID, data: PortfolioUpdate) -> Portfolio:
+def update_portfolio(db: Session, portfolio_id: int, data: PortfolioUpdate) -> Portfolio:
     portfolio = _get_portfolio(db, portfolio_id)
 
     if data.name is not None:
@@ -53,7 +52,7 @@ def update_portfolio(db: Session, portfolio_id: UUID, data: PortfolioUpdate) -> 
 # Fund transfer: wallet → portfolio
 # ---------------------------------------------------------------------------
 
-def fund_portfolio(db: Session, portfolio_id: UUID, data: FundRequest) -> Portfolio:
+def fund_portfolio(db: Session, portfolio_id: int, data: FundRequest) -> Portfolio:
     portfolio = _get_portfolio(db, portfolio_id)
     wallet = db.query(Wallet).filter(Wallet.user_id == portfolio.user_id).first()
 
@@ -91,7 +90,7 @@ def fund_portfolio(db: Session, portfolio_id: UUID, data: FundRequest) -> Portfo
 # Orders: buy / sell
 # ---------------------------------------------------------------------------
 
-def create_order(db: Session, portfolio_id: UUID, data: OrderCreate) -> Order:
+def create_order(db: Session, portfolio_id: int, data: OrderCreate) -> Order:
     portfolio = _get_portfolio(db, portfolio_id)
 
     try:
@@ -174,7 +173,7 @@ def _execute_sell(db: Session, portfolio: Portfolio, data: OrderCreate, price: D
 # Portfolio total valuation
 # ---------------------------------------------------------------------------
 
-def get_portfolio_total(db: Session, portfolio_id: UUID) -> PortfolioTotal:
+def get_portfolio_total(db: Session, portfolio_id: int) -> PortfolioTotal:
     portfolio = _get_portfolio(db, portfolio_id)
     holdings  = db.query(Holding).filter(
         Holding.portfolio_id == portfolio_id,
@@ -217,7 +216,7 @@ def get_portfolio_total(db: Session, portfolio_id: UUID) -> PortfolioTotal:
 # Movements feed (unified: orders + transfers)
 # ---------------------------------------------------------------------------
 
-def get_movements(db: Session, portfolio_id: UUID, limit: int = 50) -> list[MovementItem]:
+def get_movements(db: Session, portfolio_id: int, limit: int = 50) -> list[MovementItem]:
     _get_portfolio(db, portfolio_id)
 
     orders = db.query(Order).filter(Order.portfolio_id == portfolio_id).all()

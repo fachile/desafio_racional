@@ -8,14 +8,12 @@ Create Date: 2024-01-01 00:00:00.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 revision: str = "0001"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# create_type=False: enums are created manually below via DO blocks
 movement_type_col = sa.Enum("deposit", "withdrawal", name="movementtype", create_type=False)
 order_type_col    = sa.Enum("buy", "sell",            name="ordertype",    create_type=False)
 order_status_col  = sa.Enum("executed", "cancelled",  name="orderstatus",  create_type=False)
@@ -23,7 +21,6 @@ currency_col      = sa.Enum("USD", "CLP", "EUR",      name="currency",     creat
 
 
 def create_enum_if_not_exists(name: str, values: list[str]) -> None:
-    """PostgreSQL doesn't support CREATE TYPE IF NOT EXISTS, so we use a DO block."""
     values_str = ", ".join(f"'{v}'" for v in values)
     op.execute(f"""
         DO $$ BEGIN
@@ -42,7 +39,7 @@ def upgrade() -> None:
     # users
     op.create_table(
         "users",
-        sa.Column("id",         postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("id",         sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("email",      sa.String(255), nullable=False),
         sa.Column("full_name",  sa.String(255), nullable=False),
         sa.Column("phone",      sa.String(50),  nullable=True),
@@ -54,21 +51,19 @@ def upgrade() -> None:
     # wallets
     op.create_table(
         "wallets",
-        sa.Column("id",           postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id",      postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=False, unique=True),
+        sa.Column("id",           sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("user_id",      sa.Integer, sa.ForeignKey("users.id"), nullable=False, unique=True),
         sa.Column("cash_balance", sa.Numeric(18, 4), nullable=False, server_default="0"),
         sa.Column("currency",     sa.TEXT(), nullable=False),  # Will be cast to currency enum via constraint
         sa.Column("created_at",   sa.DateTime(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now()),
         sa.Column("updated_at",   sa.DateTime(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now()),
     )
-    # Add CHECK constraint to enforce valid currency values
-    op.execute("ALTER TABLE wallets ADD CONSTRAINT wallets_currency_check CHECK (currency IN ('USD', 'CLP', 'EUR'))")
 
     # portfolios
     op.create_table(
         "portfolios",
-        sa.Column("id",           postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id",      postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=False),
+        sa.Column("id",           sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("user_id",      sa.Integer, sa.ForeignKey("users.id"), nullable=False),
         sa.Column("name",         sa.String(255), nullable=False),
         sa.Column("description",  sa.String(500), nullable=True),
         sa.Column("cash_balance", sa.Numeric(18, 4), nullable=False, server_default="0"),
@@ -82,8 +77,8 @@ def upgrade() -> None:
     # cash_movements
     op.create_table(
         "cash_movements",
-        sa.Column("id",              postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("wallet_id",       postgresql.UUID(as_uuid=True), sa.ForeignKey("wallets.id"), nullable=False),
+        sa.Column("id",              sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("wallet_id",       sa.Integer, sa.ForeignKey("wallets.id"), nullable=False),
         sa.Column("type",            sa.TEXT(), nullable=False),  # Will be cast to movementtype enum via constraint
         sa.Column("amount",          sa.Numeric(18, 4), nullable=False),
         sa.Column("currency",        sa.TEXT(), nullable=False),  # Will be cast to currency enum via constraint
@@ -100,9 +95,9 @@ def upgrade() -> None:
     # portfolio_transfers
     op.create_table(
         "portfolio_transfers",
-        sa.Column("id",           postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("wallet_id",    postgresql.UUID(as_uuid=True), sa.ForeignKey("wallets.id"), nullable=False),
-        sa.Column("portfolio_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("portfolios.id"), nullable=False),
+        sa.Column("id",           sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("wallet_id",    sa.Integer, sa.ForeignKey("wallets.id"), nullable=False),
+        sa.Column("portfolio_id", sa.Integer, sa.ForeignKey("portfolios.id"), nullable=False),
         sa.Column("amount",       sa.Numeric(18, 4), nullable=False),
         sa.Column("currency",     sa.TEXT(), nullable=False),  # Will be cast to currency enum via constraint
         sa.Column("created_at",   sa.DateTime(timezone=True), server_default=sa.func.now()),
@@ -113,8 +108,8 @@ def upgrade() -> None:
     # holdings
     op.create_table(
         "holdings",
-        sa.Column("id",            postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("portfolio_id",  postgresql.UUID(as_uuid=True), sa.ForeignKey("portfolios.id"), nullable=False),
+        sa.Column("id",            sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("portfolio_id",  sa.Integer, sa.ForeignKey("portfolios.id"), nullable=False),
         sa.Column("ticker",        sa.String(20),     nullable=False),
         sa.Column("quantity",      sa.Numeric(18, 6), nullable=False, server_default="0"),
         sa.Column("avg_buy_price", sa.Numeric(18, 4), nullable=False, server_default="0"),
@@ -125,8 +120,8 @@ def upgrade() -> None:
     # orders
     op.create_table(
         "orders",
-        sa.Column("id",                 postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("portfolio_id",       postgresql.UUID(as_uuid=True), sa.ForeignKey("portfolios.id"), nullable=False),
+        sa.Column("id",                 sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column("portfolio_id",       sa.Integer, sa.ForeignKey("portfolios.id"), nullable=False),
         sa.Column("ticker",             sa.String(20),     nullable=False),
         sa.Column("type",               sa.TEXT(),    nullable=False),  # Will be cast to ordertype enum via constraint
         sa.Column("quantity",           sa.Numeric(18, 6), nullable=False),
@@ -155,4 +150,3 @@ def downgrade() -> None:
     op.execute("DROP TYPE IF EXISTS ordertype")
     op.execute("DROP TYPE IF EXISTS movementtype")
     op.execute("DROP TYPE IF EXISTS currency")
-    

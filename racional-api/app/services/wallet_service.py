@@ -1,4 +1,3 @@
-from uuid import UUID, uuid4
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -8,14 +7,14 @@ from app.models.models import Wallet, CashMovement, MovementType
 from app.schemas.wallet import DepositRequest, WithdrawalRequest
 
 
-def _get_wallet(db: Session, wallet_id: UUID) -> Wallet:
+def _get_wallet(db: Session, wallet_id: int) -> Wallet:
     wallet = db.query(Wallet).filter(Wallet.id == wallet_id).first()
     if not wallet:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wallet not found")
     return wallet
 
 
-def deposit(db: Session, wallet_id: UUID, data: DepositRequest) -> CashMovement:
+def deposit(db: Session, wallet_id: int, data: DepositRequest) -> CashMovement:
     wallet = _get_wallet(db, wallet_id)
 
     # Validate currency matches wallet
@@ -61,7 +60,7 @@ def deposit(db: Session, wallet_id: UUID, data: DepositRequest) -> CashMovement:
     return movement
 
 
-def withdrawal(db: Session, wallet_id: UUID, data: WithdrawalRequest) -> CashMovement:
+def withdrawal(db: Session, wallet_id: int, data: WithdrawalRequest) -> CashMovement:
     wallet = _get_wallet(db, wallet_id)
 
     if data.currency != wallet.currency:

@@ -1,4 +1,3 @@
-from uuid import UUID
 from datetime import date, datetime
 from decimal import Decimal
 from pydantic import BaseModel, Field
@@ -6,8 +5,8 @@ from app.models.models import Currency, MovementType
 
 
 class WalletResponse(BaseModel):
-    id:           UUID
-    user_id:      UUID
+    id:           int
+    user_id:      int
     cash_balance: Decimal
     currency:     Currency
     created_at:   datetime
@@ -31,8 +30,8 @@ class WithdrawalRequest(BaseModel):
 
 
 class CashMovementResponse(BaseModel):
-    id:              UUID
-    wallet_id:       UUID
+    id:              int
+    wallet_id:       int
     type:            MovementType
     amount:          Decimal
     currency:        Currency

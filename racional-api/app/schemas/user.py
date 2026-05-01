@@ -1,4 +1,3 @@
-from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 
@@ -15,7 +14,7 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id:         UUID
+    id:         int
     email:      str
     full_name:  str
     phone:      str | None

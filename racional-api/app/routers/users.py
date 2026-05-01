@@ -1,4 +1,3 @@
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -15,10 +14,10 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: UUID, db: Session = Depends(get_db)):
+def get_user(user_id: int, db: Session = Depends(get_db)):
     return user_service.get_user(db, user_id)
 
 
 @router.patch("/{user_id}", response_model=UserResponse)
-def update_user(user_id: UUID, data: UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):
     return user_service.update_user(db, user_id, data)

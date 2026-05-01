@@ -1,11 +1,8 @@
-from uuid import UUID
 from datetime import date, datetime
 from decimal import Decimal
 from pydantic import BaseModel, Field
 from app.models.models import Currency, OrderType, OrderStatus
 
-
-# --- Portfolio ---
 
 class PortfolioCreate(BaseModel):
     name:        str = Field(..., min_length=1, max_length=255)
@@ -19,8 +16,8 @@ class PortfolioUpdate(BaseModel):
 
 
 class PortfolioResponse(BaseModel):
-    id:           UUID
-    user_id:      UUID
+    id:           int
+    user_id:      int
     name:         str
     description:  str | None
     cash_balance: Decimal
@@ -31,13 +28,9 @@ class PortfolioResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Fund Transfer ---
-
 class FundRequest(BaseModel):
     amount: Decimal = Field(..., gt=0, decimal_places=4)
 
-
-# --- Total ---
 
 class HoldingValuation(BaseModel):
     ticker:        str
@@ -49,15 +42,13 @@ class HoldingValuation(BaseModel):
 
 
 class PortfolioTotal(BaseModel):
-    portfolio_id:   UUID
+    portfolio_id:   int
     currency:       Currency
     cash_balance:   Decimal
     holdings_value: Decimal
     total_value:    Decimal
     holdings:       list[HoldingValuation]
 
-
-# --- Orders ---
 
 class OrderCreate(BaseModel):
     ticker:   str = Field(..., min_length=1, max_length=20)
@@ -67,8 +58,8 @@ class OrderCreate(BaseModel):
 
 
 class OrderResponse(BaseModel):
-    id:                 UUID
-    portfolio_id:       UUID
+    id:                 int
+    portfolio_id:       int
     ticker:             str
     type:               OrderType
     quantity:           Decimal
@@ -81,11 +72,9 @@ class OrderResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Movements (unified feed) ---
-
 class MovementItem(BaseModel):
-    id:          UUID
-    event_type:  str          # "deposit" | "withdrawal" | "buy" | "sell" | "fund_in" | "fund_out"
+    id:          int
+    event_type:  str
     description: str
     amount:      Decimal
     currency:    Currency

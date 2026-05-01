@@ -1,14 +1,12 @@
-import uuid
+import enum
 from datetime import datetime, date
 from decimal import Decimal
 
 from sqlalchemy import (
     String, Numeric, Enum, ForeignKey, DateTime, Date,
-    UniqueConstraint, func
+    UniqueConstraint, func, Integer
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
-import enum
 
 from app.database import Base
 
@@ -56,7 +54,7 @@ currency_enum      = Enum(Currency,     name="currency",     create_type=False)
 class User(Base):
     __tablename__ = "users"
 
-    id:         Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id:         Mapped[int]       = mapped_column(Integer, primary_key=True, autoincrement=True)
     email:      Mapped[str]       = mapped_column(String(255), unique=True, nullable=False, index=True)
     full_name:  Mapped[str]       = mapped_column(String(255), nullable=False)
     phone:      Mapped[str | None] = mapped_column(String(50))
@@ -70,8 +68,8 @@ class User(Base):
 class Wallet(Base):
     __tablename__ = "wallets"
 
-    id:           Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id:      Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False)
+    id:           Mapped[int]       = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id:      Mapped[int]       = mapped_column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     cash_balance: Mapped[Decimal]   = mapped_column(Numeric(18, 4), nullable=False, default=Decimal("0"))
     currency:     Mapped[Currency]  = mapped_column(currency_enum, nullable=False, default=Currency.USD)
     created_at:   Mapped[datetime]  = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -85,8 +83,8 @@ class Wallet(Base):
 class Portfolio(Base):
     __tablename__ = "portfolios"
 
-    id:           Mapped[uuid.UUID]  = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id:      Mapped[uuid.UUID]  = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id:           Mapped[int]        = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id:      Mapped[int]        = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     name:         Mapped[str]        = mapped_column(String(255), nullable=False)
     description:  Mapped[str | None] = mapped_column(String(500))
     cash_balance: Mapped[Decimal]    = mapped_column(Numeric(18, 4), nullable=False, default=Decimal("0"))
@@ -103,8 +101,8 @@ class Portfolio(Base):
 class CashMovement(Base):
     __tablename__ = "cash_movements"
 
-    id:              Mapped[uuid.UUID]    = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    wallet_id:       Mapped[uuid.UUID]    = mapped_column(UUID(as_uuid=True), ForeignKey("wallets.id"), nullable=False)
+    id:              Mapped[int]          = mapped_column(Integer, primary_key=True, autoincrement=True)
+    wallet_id:       Mapped[int]          = mapped_column(Integer, ForeignKey("wallets.id"), nullable=False)
     type:            Mapped[MovementType] = mapped_column(movement_type_enum, nullable=False)
     amount:          Mapped[Decimal]      = mapped_column(Numeric(18, 4), nullable=False)
     currency:        Mapped[Currency]     = mapped_column(currency_enum, nullable=False)
@@ -119,9 +117,9 @@ class CashMovement(Base):
 class PortfolioTransfer(Base):
     __tablename__ = "portfolio_transfers"
 
-    id:           Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    wallet_id:    Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("wallets.id"), nullable=False)
-    portfolio_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("portfolios.id"), nullable=False)
+    id:           Mapped[int]       = mapped_column(Integer, primary_key=True, autoincrement=True)
+    wallet_id:    Mapped[int]       = mapped_column(Integer, ForeignKey("wallets.id"), nullable=False)
+    portfolio_id: Mapped[int]       = mapped_column(Integer, ForeignKey("portfolios.id"), nullable=False)
     amount:       Mapped[Decimal]   = mapped_column(Numeric(18, 4), nullable=False)
     currency:     Mapped[Currency]  = mapped_column(currency_enum, nullable=False)
     created_at:   Mapped[datetime]  = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -136,8 +134,8 @@ class Holding(Base):
         UniqueConstraint("portfolio_id", "ticker", name="uq_holding_portfolio_ticker"),
     )
 
-    id:            Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    portfolio_id:  Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("portfolios.id"), nullable=False)
+    id:            Mapped[int]       = mapped_column(Integer, primary_key=True, autoincrement=True)
+    portfolio_id:  Mapped[int]       = mapped_column(Integer, ForeignKey("portfolios.id"), nullable=False)
     ticker:        Mapped[str]       = mapped_column(String(20), nullable=False)
     quantity:      Mapped[Decimal]   = mapped_column(Numeric(18, 6), nullable=False, default=Decimal("0"))
     avg_buy_price: Mapped[Decimal]   = mapped_column(Numeric(18, 4), nullable=False, default=Decimal("0"))
@@ -149,8 +147,8 @@ class Holding(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    id:                  Mapped[uuid.UUID]   = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    portfolio_id:        Mapped[uuid.UUID]   = mapped_column(UUID(as_uuid=True), ForeignKey("portfolios.id"), nullable=False)
+    id:                  Mapped[int]         = mapped_column(Integer, primary_key=True, autoincrement=True)
+    portfolio_id:        Mapped[int]         = mapped_column(Integer, ForeignKey("portfolios.id"), nullable=False)
     ticker:              Mapped[str]         = mapped_column(String(20), nullable=False)
     type:                Mapped[OrderType]   = mapped_column(order_type_enum, nullable=False)
     quantity:            Mapped[Decimal]     = mapped_column(Numeric(18, 6), nullable=False)

@@ -1,4 +1,3 @@
-from uuid import UUID
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -22,7 +21,7 @@ def create_user(db: Session, data: UserCreate) -> User:
     return user
 
 
-def update_user(db: Session, user_id: UUID, data: UserUpdate) -> User:
+def update_user(db: Session, user_id: int, data: UserUpdate) -> User:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -37,7 +36,7 @@ def update_user(db: Session, user_id: UUID, data: UserUpdate) -> User:
     return user
 
 
-def get_user(db: Session, user_id: UUID) -> User:
+def get_user(db: Session, user_id: int) -> User:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
