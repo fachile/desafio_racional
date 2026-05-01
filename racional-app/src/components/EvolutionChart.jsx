@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  ReferenceDot,
 } from "recharts";
 
 const PERIODS = [
@@ -29,6 +30,8 @@ function CustomTooltip({ active, payload }) {
   const d = payload[0].payload;
   const gain = d.portfolioValue - d.contributions;
   const isPos = gain >= 0;
+  const contributionDelta = d.contributionDelta ?? 0;
+  const hasContribution = contributionDelta > 0;
 
   return (
     <div className="chart-tooltip">
@@ -44,6 +47,11 @@ function CustomTooltip({ active, payload }) {
         {isPos ? "+" : ""}
         {formatCLP(gain)}
       </p>
+      {hasContribution && (
+        <p className="tooltip-contribution positive">
+          Aporte: +{formatCLP(contributionDelta)}
+        </p>
+      )}
       <p className="tooltip-return">
         Retorno diario:{" "}
         <strong className={d.dailyReturn >= 0 ? "positive" : "negative"}>
@@ -55,13 +63,24 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function EvolutionChart({ data, period, onPeriodChange }) {
+  const normalizedData = data.map((d, index) => {
+    const previous = data[index - 1];
+    const contributionDelta = previous ? d.contributions - previous.contributions : 0;
+
+    return {
+      ...d,
+      contributionDelta,
+      hasContribution: contributionDelta > 0,
+    };
+  });
+
   const filtered = (() => {
     const selected = PERIODS.find((p) => p.label === period);
-    if (!selected?.days) return data;
+    if (!selected?.days) return normalizedData;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - selected.days);
-    const result = data.filter((d) => d.date >= cutoff);
-    return result.length > 0 ? result : data.slice(-selected.days);
+    const result = normalizedData.filter((d) => d.date >= cutoff);
+    return result.length > 0 ? result : normalizedData.slice(-selected.days);
   })();
 
   const chartData = filtered.map((d) => ({
@@ -80,6 +99,7 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
   const contribution = chartData[0]?.contributions ?? 1000000;
   const isPositive =
     (chartData[chartData.length - 1]?.portfolioValue ?? 0) >= contribution;
+  const contributionEvents = chartData.filter((d) => d.hasContribution);
 
   const gradientId = "portfolioGradient";
   const strokeColor = isPositive ? "#16a34a" : "#dc2626";
@@ -97,6 +117,11 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
             {p.label}
           </button>
         ))}
+        <span className="chart-marker-note">
+          {contributionEvents.length > 0
+            ? `${contributionEvents.length} aporte${contributionEvents.length === 1 ? "" : "s"}`
+            : "Sin aportes en este período"}
+        </span>
       </div>
 
       <ResponsiveContainer width="100%" height={340}>
@@ -147,7 +172,7 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
             stroke="#d1d5db"
             strokeDasharray="4 4"
             label={{
-              value: "Aportado",
+              value: "Aporte Inicial",
               position: "insideTopRight",
               fontSize: 10,
               fill: "#9ca3af",
@@ -163,6 +188,20 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
             dot={false}
             activeDot={{ r: 5, stroke: strokeColor, strokeWidth: 2, fill: "#fff" }}
           />
+
+          {contributionEvents.map((point) => (
+            <ReferenceDot
+              key={`${point.timestamp}-${point.contributionDelta}`}
+              x={point.timestamp}
+              y={point.portfolioValue}
+              r={5}
+              fill="#f59e0b"
+              stroke="#fff"
+              strokeWidth={2}
+              isFront
+              ifOverflow="visible"
+            />
+          ))}
         </AreaChart>
       </ResponsiveContainer>
     </div>

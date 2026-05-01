@@ -338,6 +338,8 @@ body {
 .chart-wrapper { position: relative; }
 .period-selector {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
   margin-bottom: 16px;
 }
@@ -361,6 +363,12 @@ body {
   background: var(--text-primary);
   color: #fff;
   border-color: var(--text-primary);
+}
+.chart-marker-note {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 5px 0;
 }
 
 /* ── Tooltip ── */
@@ -390,6 +398,11 @@ body {
   font-weight: 500;
   margin-bottom: 6px;
 }
+.tooltip-contribution {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 .tooltip-return {
   font-size: 12px;
   color: var(--text-muted);
@@ -416,6 +429,10 @@ body {
   .portfolio-summary-value { font-size: 38px; }
   .portfolio-summary-item-value { font-size: 22px; }
   .chart-card { padding: 20px 16px 16px; }
+  .chart-marker-note {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 @media (max-width: 480px) {
   .live-time { display: none; }
