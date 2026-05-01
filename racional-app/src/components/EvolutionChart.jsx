@@ -24,7 +24,7 @@ function formatCLP(value) {
   }).format(value);
 }
 
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   const gain = d.portfolioValue - d.contributions;
@@ -32,7 +32,13 @@ function CustomTooltip({ active, payload, label }) {
 
   return (
     <div className="chart-tooltip">
-      <p className="tooltip-date">{label}</p>
+      <p className="tooltip-date">
+        {d.date.toLocaleDateString("es-CL", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
+      </p>
       <p className="tooltip-value">{formatCLP(d.portfolioValue)}</p>
       <p className={`tooltip-gain ${isPos ? "positive" : "negative"}`}>
         {isPos ? "+" : ""}
@@ -60,6 +66,7 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
 
   const chartData = filtered.map((d) => ({
     ...d,
+    timestamp: d.date.getTime(),
     dateLabel: d.date.toLocaleDateString("es-CL", {
       day: "2-digit",
       month: "short",
@@ -76,7 +83,6 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
 
   const gradientId = "portfolioGradient";
   const strokeColor = isPositive ? "#16a34a" : "#dc2626";
-  const fillStart = isPositive ? "rgba(22,163,74,0.18)" : "rgba(220,38,38,0.18)";
 
   return (
     <div className="chart-wrapper">
@@ -105,11 +111,19 @@ export default function EvolutionChart({ data, period, onPeriodChange }) {
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
 
           <XAxis
-            dataKey="dateLabel"
+            dataKey="timestamp"
+            type="number"
+            domain={["dataMin", "dataMax"]}
             tick={{ fontSize: 11, fill: "#9ca3af" }}
             tickLine={false}
             axisLine={false}
             interval="preserveStartEnd"
+            tickFormatter={(value) =>
+              new Date(value).toLocaleDateString("es-CL", {
+                day: "2-digit",
+                month: "short",
+              })
+            }
           />
 
           <YAxis
