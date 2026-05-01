@@ -164,7 +164,6 @@ Todas las transacciones se expresan en **CLP** (pesos chilenos).
 - Schema inicial con soporte multi-currency (USD, CLP, EUR)
 - Montos con `Numeric(18,4)` (decimales, riesgo de float)
 - `idempotency_key` único en DB
-- Campos temporales (created_at, updated_at)
 - Justificación: "cubrir todas las posibilidades"
 - Problema: complejidad innecesaria en MVP
 
